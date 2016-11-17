@@ -217,6 +217,7 @@
                         android:text="-2°C~7°C"
                         android:gravity="center"
                         android:textSize="24.0dip"
+                        android:textColor="#fff"
                         android:layout_toEndOf="@id/weather_img"/>
 
                 </LinearLayout>

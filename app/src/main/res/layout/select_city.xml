@@ -6,7 +6,8 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="45.0dip"
-        android:background="#ffcd2626">
+        android:background="#ffcd2626"
+        android:id="@+id/city_bar">
         <TextView
             android:id="@+id/title_name"
             android:layout_width="fill_parent"
@@ -32,5 +33,51 @@
             android:background="#A71717"
             android:gravity="center" />
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/city_bar"
+
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="55.0dip"
+            android:background="#DDD">
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="10dp"
+                android:drawableLeft="@drawable/search_icon"
+                android:drawablePadding="5dp"
+                android:background="@drawable/search_edittext_shape"
+                android:textSize="16dp"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:textColor="#000"
+                android:hint="请输入您要查看的城市"
+                />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/edittext_delete_bg"
+                android:id="@+id/search_delete"
+                android:layout_gravity="right|center_vertical"
+                />
+        </FrameLayout>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/city_list">
+
+        </ListView>
+    </LinearLayout>
 
 </RelativeLayout>

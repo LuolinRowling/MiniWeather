@@ -1,7 +1,10 @@
 package cn.edu.pku.luolin.miniweather;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import cn.edu.pku.luolin.bean.TodayWeather;
+import cn.edu.pku.luolin.service.MyIntentService;
 import cn.edu.pku.luolin.util.NetUtil;
 
 /**
@@ -46,6 +50,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case UPDATE_TODAY_WEATHER:
+//                    queryWeatherCode(String.valueOf(msg.arg1));
                     updateTodayWeather((TodayWeather) msg.obj);
                     break;
                 default:
@@ -53,6 +58,30 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         }
     };
+
+    IntentFilter intentFilter;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //创建intent过滤器
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("CURRENT_WEATHER_UPDATE_ACTION");
+
+        //将其注册到intent接收器上
+        registerReceiver(intentReceiver, intentFilter);
+
+        startService(new Intent(getBaseContext(), MyIntentService.class));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        unregisterReceiver(intentReceiver);
+        stopService(new Intent(getBaseContext(), MyIntentService.class));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +104,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         initView();
     }
-
 
     void initView() {
         city_name_Tv = (TextView) findViewById(R.id.title_city_name);
@@ -203,49 +231,83 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     }
 
+    private TodayWeather queryTodayWeather(final String cityCode, HttpURLConnection conn) {
+        final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
+        TodayWeather todayWeather = null;
+
+        try {
+            URL url = new URL(address);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
+            InputStream in = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            StringBuilder response = new StringBuilder();
+            String str;
+            while ((str = reader.readLine()) != null) {
+                response.append(str);
+                Log.d("miniWeather", str);
+            }
+            String responseStr = response.toString();
+            Log.d("miniWeather", responseStr);
+            todayWeather = parseXML(responseStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+
+        return todayWeather;
+    }
     /**
      * @param cityCode
      */
-    private void queryWeatherCode(String cityCode) {
-        final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
-        Log.d("miniWeather", address);
+    private void queryWeatherCode(final String cityCode) {
+
+//        Log.d("miniWeather", address);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 HttpURLConnection conn = null;
-                TodayWeather todayWeather = null;
-                try {
-                    URL url = new URL(address);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.setConnectTimeout(8000);
-                    conn.setReadTimeout(8000);
-                    InputStream in = conn.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuilder response = new StringBuilder();
-                    String str;
-                    while ((str = reader.readLine()) != null) {
-                        response.append(str);
-                        Log.d("miniWeather", str);
-                    }
-                    String responseStr = response.toString();
-                    Log.d("miniWeather", responseStr);
-                    todayWeather = parseXML(responseStr);
-                    if (todayWeather != null) {
+                TodayWeather todayWeather = queryTodayWeather(cityCode, conn);
+                TodayWeather urbanTodayWeather = queryTodayWeather(cityCode.substring(0, 5) + "0100", conn);
+//                try {
+//                    URL url = new URL(address);
+//                    conn = (HttpURLConnection) url.openConnection();
+//                    conn.setRequestMethod("GET");
+//                    conn.setConnectTimeout(8000);
+//                    conn.setReadTimeout(8000);
+//                    InputStream in = conn.getInputStream();
+//                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//                    StringBuilder response = new StringBuilder();
+//                    String str;
+//                    while ((str = reader.readLine()) != null) {
+//                        response.append(str);
+//                        Log.d("miniWeather", str);
+//                    }
+//                    String responseStr = response.toString();
+//                    Log.d("miniWeather", responseStr);
+//                    todayWeather = parseXML(responseStr);
+                    if (todayWeather != null && urbanTodayWeather !=null) {
                         Log.d("miniWeather", todayWeather.toString());
-
+                        todayWeather.setPm25(urbanTodayWeather.getPm25());
+                        todayWeather.setQuality(urbanTodayWeather.getQuality());
                         Message msg = new Message();
                         msg.what = UPDATE_TODAY_WEATHER;
                         msg.obj = todayWeather;
+//                        msg.arg1 = Integer.parseInt();
                         mHandler.sendMessage(msg);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (conn != null) {
-                        conn.disconnect();
-                    }
-                }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                } finally {
+//                    if (conn != null) {
+//                        conn.disconnect();
+//                    }
+//                }
             }
         }).start();
     }
@@ -364,8 +426,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             String newCityCode = data.getStringExtra("cityCode");
-            Log.d("miniWeather", "选择的城市代码为" + newCityCode);
 
+            Log.d("miniWeather", "选择的城市代码为" + newCityCode);
 
             if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
                 Log.d("miniWeather", "网络OK");
@@ -375,4 +437,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         }
     }
+
+    private BroadcastReceiver intentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+            String cityCode = sharedPreferences.getString("main_city_code", "101010100");
+
+            if (NetUtil.getNetworkState(context) != NetUtil.NETWORK_NONE) {
+                Log.d("miniWeather", "网络OK");
+                queryWeatherCode(cityCode);
+            } else {
+                Log.d("miniWeather", "网络挂了");
+            }
+        }
+    };
 }
