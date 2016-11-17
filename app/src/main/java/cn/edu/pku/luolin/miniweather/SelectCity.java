@@ -10,7 +10,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class SelectCity extends Activity implements View.OnClickListener{
             intent.putExtra("cityCode", mCityList.get(i).getNumber());
             setResult(RESULT_OK, intent);
             finish();
-//            Toast.makeText(SelectCity.this, mCityList.get(i).getNumber(), Toast.LENGTH_SHORT).show();
+
         }
     };
 

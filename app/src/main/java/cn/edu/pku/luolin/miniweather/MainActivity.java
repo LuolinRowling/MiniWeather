@@ -267,30 +267,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
      */
     private void queryWeatherCode(final String cityCode) {
 
-//        Log.d("miniWeather", address);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 HttpURLConnection conn = null;
                 TodayWeather todayWeather = queryTodayWeather(cityCode, conn);
                 TodayWeather urbanTodayWeather = queryTodayWeather(cityCode.substring(0, 5) + "0100", conn);
-//                try {
-//                    URL url = new URL(address);
-//                    conn = (HttpURLConnection) url.openConnection();
-//                    conn.setRequestMethod("GET");
-//                    conn.setConnectTimeout(8000);
-//                    conn.setReadTimeout(8000);
-//                    InputStream in = conn.getInputStream();
-//                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-//                    StringBuilder response = new StringBuilder();
-//                    String str;
-//                    while ((str = reader.readLine()) != null) {
-//                        response.append(str);
-//                        Log.d("miniWeather", str);
-//                    }
-//                    String responseStr = response.toString();
-//                    Log.d("miniWeather", responseStr);
-//                    todayWeather = parseXML(responseStr);
                     if (todayWeather != null && urbanTodayWeather !=null) {
                         Log.d("miniWeather", todayWeather.toString());
                         todayWeather.setPm25(urbanTodayWeather.getPm25());
@@ -298,16 +280,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                         Message msg = new Message();
                         msg.what = UPDATE_TODAY_WEATHER;
                         msg.obj = todayWeather;
-//                        msg.arg1 = Integer.parseInt();
                         mHandler.sendMessage(msg);
                     }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                } finally {
-//                    if (conn != null) {
-//                        conn.disconnect();
-//                    }
-//                }
             }
         }).start();
     }
@@ -404,7 +378,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         if (view.getId() == R.id.title_city_manager) {
             Intent i = new Intent(this, SelectCity.class);
-//            startActivity(i);
             startActivityForResult(i, 1);
         }
         if (view.getId() == R.id.title_update_btn) {
@@ -415,10 +388,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
             if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
                 Log.d("miniWeather", "网络OK");
                 queryWeatherCode(cityCode);
-                //Toast.makeText(MainActivity.this, "网络OK", Toast.LENGTH_LONG).show();
             } else {
                 Log.d("miniWeather", "网络挂了");
-                //Toast.makeText(MainActivity.this, "网络挂了", Toast.LENGTH_LONG).show();
             }
         }
     }
