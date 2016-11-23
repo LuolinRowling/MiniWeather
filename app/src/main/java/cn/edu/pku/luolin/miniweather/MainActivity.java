@@ -12,6 +12,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private TextView cityTv, timeTv, humidityTv, weekTv, pmDataTv, pmQualityTv,
             temperatureTv, climateTv, windTv, city_name_Tv, currentTempTv;
     private ImageView weatherImg, pmImg;
+
+    private ProgressBar mUpdateProgress;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -102,6 +105,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mCitySelect = (ImageView) findViewById(R.id.title_city_manager);
         mCitySelect.setOnClickListener(this);
 
+        mUpdateProgress = (ProgressBar) findViewById(R.id.title_update_progress);
         initView();
     }
 
@@ -140,29 +144,33 @@ public class MainActivity extends Activity implements View.OnClickListener {
         cityTv.setText(todayWeather.getCity());
         timeTv.setText(todayWeather.getUpdatetime() + "发布");
         humidityTv.setText("湿度：" + todayWeather.getShidu());
-        pmDataTv.setText(todayWeather.getPm25());
-        pmQualityTv.setText(todayWeather.getQuality());
         weekTv.setText(todayWeather.getDate());
         temperatureTv.setText(todayWeather.getHigh() + "~" + todayWeather.getLow());
         climateTv.setText(todayWeather.getType());
         windTv.setText("风力:" + todayWeather.getFengli());
         currentTempTv.setText(todayWeather.getWendu() + "°C");
 
-        int pm25 = Integer.parseInt(todayWeather.getPm25());
+        if (todayWeather.getPm25() != null) {
+            pmDataTv.setText(todayWeather.getPm25());
+            pmQualityTv.setText(todayWeather.getQuality());
 
-        if (pm25 <= 50) {
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_0_50);
-        } else if (pm25 <= 100) {
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_51_100);
-        } else if (pm25 <= 150) {
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_101_150);
-        } else if (pm25 <= 200) {
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_151_200);
-        } else if (pm25 <= 300) {
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_201_300);
-        } else {
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_greater_300);
+            int pm25 = Integer.parseInt(todayWeather.getPm25());
+
+            if (pm25 <= 50) {
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_0_50);
+            } else if (pm25 <= 100) {
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_51_100);
+            } else if (pm25 <= 150) {
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_101_150);
+            } else if (pm25 <= 200) {
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_151_200);
+            } else if (pm25 <= 300) {
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_201_300);
+            } else {
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_greater_300);
+            }
         }
+
 
         switch (todayWeather.getType()) {
             case "暴雪":
@@ -226,7 +234,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 weatherImg.setImageResource(R.drawable.biz_plugin_weather_zhongyu);
                 break;
         }
-
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+        mUpdateBtn.setVisibility(View.VISIBLE);
+        mUpdateProgress.setVisibility(View.INVISIBLE);
         Toast.makeText(MainActivity.this, "更新成功！", Toast.LENGTH_SHORT).show();
 
     }
@@ -381,6 +400,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
             startActivityForResult(i, 1);
         }
         if (view.getId() == R.id.title_update_btn) {
+            mUpdateBtn.setVisibility(View.INVISIBLE);
+            mUpdateProgress.setVisibility(View.VISIBLE);
+
             SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
             String cityCode = sharedPreferences.getString("main_city_code", "101010100");
             Log.d("miniWeather", cityCode);

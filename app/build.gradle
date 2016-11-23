@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "cn.edu.pku.luolin.miniweather"
-        minSdkVersion 19
+        minSdkVersion 18
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -19,6 +19,7 @@ android {
     }
     sourceSets { main { assets.srcDirs = ['src/main/assets', 'src/main/assets/'] } }
 }
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

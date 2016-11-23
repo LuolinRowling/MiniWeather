@@ -2,8 +2,6 @@ package cn.edu.pku.luolin.service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
-import android.util.Log;
 
 import java.util.Timer;
 import java.util.TimerTask;

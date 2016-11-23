@@ -46,6 +46,14 @@
             android:src="@drawable/title_update"
             android:visibility="visible" />
 
+        <ProgressBar
+            android:id="@+id/title_update_progress"
+            android:layout_width="45dip"
+            android:layout_height="45dip"
+            android:layout_alignParentRight="true"
+            style="@style/title_update_progressbar_style"
+            android:visibility="invisible"/>
+
 
         <ImageView
             android:id="@+id/title_share"
