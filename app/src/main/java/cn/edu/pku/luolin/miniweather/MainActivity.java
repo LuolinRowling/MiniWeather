@@ -91,6 +91,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
 
+        SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+        String guideStatus = sharedPreferences.getString("guide_status", "NULL");
+
+        if (guideStatus.equals("NULL")) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("guide_status", "ALREADY_GUIDE");
+            editor.commit();
+        }
+
         mUpdateBtn = (ImageView) findViewById(R.id.title_update_btn);
         mUpdateBtn.setOnClickListener(this);
 

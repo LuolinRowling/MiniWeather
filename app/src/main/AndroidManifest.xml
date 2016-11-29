@@ -13,17 +13,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".MainActivity">
+
+        </activity>
+        <activity android:name=".SelectCity" />
+        <activity android:name=".GuideActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SelectCity"></activity>
-
         <service
             android:name="cn.edu.pku.luolin.service.MyIntentService"
-            android:exported="false"></service>
+            android:exported="false" />
+
     </application>
 
 </manifest>
