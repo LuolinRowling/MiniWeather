@@ -146,6 +146,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         currentTempTv.setText("N/A");
         weatherImg.setImageResource(R.drawable.biz_plugin_weather_qing);
         pmImg.setImageResource(R.drawable.biz_plugin_weather_0_50);
+
+
     }
 
     void updateTodayWeather(TodayWeather todayWeather) {
