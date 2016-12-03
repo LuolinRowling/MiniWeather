@@ -295,87 +295,41 @@
         </RelativeLayout>
 
         <!-- 七日天气信息 -->
-        <LinearLayout
-            android:id="@+id/post_weather_container"
+        <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_margin="20sp">
+            android:layout_height="250dp"
+            android:paddingTop="15dp">
+
+            <android.support.v4.view.ViewPager
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/weather_viewpager"
+                android:layout_gravity="center_horizontal">
+
+            </android.support.v4.view.ViewPager>
 
             <LinearLayout
-                android:id="@+id/post_weather"
-                android:layout_width="match_parent"
+                android:id="@+id/post_indicator"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/post_week_day"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="星期五"
-                    android:textSize="20dp"
-                    android:textColor="#ffffff"
-                    android:gravity="center_horizontal"
-                    />
+                android:orientation="horizontal"
+                android:layout_alignParentBottom="true"
+                android:gravity="center_horizontal">
                 <ImageView
-                    android:id="@+id/post_week_img"
+                    android:id="@+id/post_iv1"
                     android:layout_width="wrap_content"
-                    android:layout_height="80sp"
-                    android:src="@drawable/biz_plugin_weather_qing"/>
-                <TextView
-                    android:id="@+id/post_temperature"
-                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="-2°C~7°C"
-                    android:textColor="#FFFFFF"
-                    android:textSize="24dp"
-                    android:gravity="center_horizontal"/>
-                <TextView
-                    android:id="@+id/post_climate"
-                    android:layout_width="fill_parent"
+                    android:padding="5dp"
+                    android:src="@drawable/page_indicator_focused"/>
+                <ImageView
+                    android:id="@+id/post_iv2"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="多云转晴"
-                    android:layout_marginTop="4dp"
-                    android:textSize="20dp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center_horizontal"/>
-                <TextView
-                    android:id="@+id/post_wind"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="微风"
-                    android:textSize="20dp"
-                    android:layout_marginTop="4dp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center_horizontal"/>
+                    android:padding="5dp"
+                    android:src="@drawable/page_indicator_unfocused"/>
             </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="星期五"
-                    android:textSize="20dp"
-                    android:textColor="#ffffff"
-                    android:gravity="center_horizontal"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="星期五"
-                    android:textSize="20dp"
-                    android:textColor="#ffffff"
-                    android:gravity="center_horizontal"/>
-            </LinearLayout>
-        </LinearLayout>
+        </RelativeLayout>
+
         <!-- 广告等信息 -->
 
     </LinearLayout>

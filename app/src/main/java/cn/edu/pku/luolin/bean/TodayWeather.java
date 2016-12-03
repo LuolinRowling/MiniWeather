@@ -1,5 +1,8 @@
 package cn.edu.pku.luolin.bean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by luolin on 2016/10/11.
  */
@@ -16,6 +19,7 @@ public class TodayWeather {
     private String high;
     private String low;
     private String type;
+    private List<PostWeather> postWeathers;
 
     public String getCity() {
         return city;
@@ -111,6 +115,18 @@ public class TodayWeather {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public List<PostWeather> getPostWeathers() {
+        return postWeathers;
+    }
+
+    public void setPostWeathers(List<PostWeather> postWeathers) {
+        this.postWeathers = postWeathers;
+    }
+
+    public void addPostWeather(PostWeather postWeather) {
+        this.postWeathers.add(postWeather);
     }
 
     @Override
