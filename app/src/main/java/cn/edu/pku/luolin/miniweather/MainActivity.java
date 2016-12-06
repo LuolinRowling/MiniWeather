@@ -191,7 +191,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             for (int j = 0; j < 3; j++) {
                 View postWeatherView = inflater.inflate(R.layout.post_weather, null);
                 if (postWeathers != null) {
-                    int index = (i + 1) * (j + 1) - 1;
+                    int index = i * 3 + j;
                     TextView mPostWeekDay = (TextView) postWeatherView.findViewById(R.id.post_week_day);
                     ImageView mPostWeekImg = (ImageView) postWeatherView.findViewById(R.id.post_week_img);
                     TextView mPostTemperature = (TextView) postWeatherView.findViewById(R.id.post_temperature);
