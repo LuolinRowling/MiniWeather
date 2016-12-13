@@ -8,12 +8,16 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +39,16 @@ public class SelectCity extends Activity implements View.OnClickListener{
     private List<City> mQueryCityList;
     private List<City> mCurrentCityList;
     private EditText mEditText;
+    private TextView mCurrentCity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_city);
+
+        mCurrentCity = (TextView) findViewById(R.id.title_name);
+        SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+        String cityName = sharedPreferences.getString("main_city_name", "北京");
+        mCurrentCity.setText("当前城市：" + cityName);
 
         mBackBtn = (ImageView) findViewById(R.id.title_back);
         mBackBtn.setOnClickListener(this);
@@ -57,6 +67,20 @@ public class SelectCity extends Activity implements View.OnClickListener{
         mCurrentCityList = mCityList;
         mCityListView.setAdapter(mAdapter);
         mCityListView.setOnItemClickListener(mCityClickedHandler);
+        mCityListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+                mEditText.clearFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                //imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+                imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+
+            }
+        });
     }
 
     private void setCityList(CharSequence charSequence, String status) {
@@ -68,7 +92,9 @@ public class SelectCity extends Activity implements View.OnClickListener{
                     mQueryCityList.add(city);
                 }
             } else if (status.equals("CITY_PINYIN")) {
-                if (city.getAllFirstPY().indexOf(charSequence.toString().toUpperCase()) != -1) {
+                if (city.getAllFirstPY().toUpperCase().indexOf(charSequence.toString().toUpperCase()) != -1) {
+                    mQueryCityList.add(city);
+                } else if (city.getAllPY().toUpperCase().indexOf(charSequence.toString().toUpperCase()) != -1) {
                     mQueryCityList.add(city);
                 }
             }
@@ -86,10 +112,11 @@ public class SelectCity extends Activity implements View.OnClickListener{
             SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("main_city_code", mCurrentCityList.get(i).getNumber());
+            editor.putString("main_city_name", mCurrentCityList.get(i).getCity());
             editor.commit();
 
             Intent intent = new Intent();
-            intent.putExtra("cityCode", mCurrentCityList.get(i).getNumber());
+            //intent.putExtra("cityCode", mCurrentCityList.get(i).getNumber());
             setResult(RESULT_OK, intent);
             finish();
 

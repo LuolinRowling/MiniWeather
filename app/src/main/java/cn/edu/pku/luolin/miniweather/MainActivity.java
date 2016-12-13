@@ -105,8 +105,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     }
                 }
 
-                if (!cityCode.equals(""))
+                if (!cityCode.equals("")) {
                     queryWeatherCode(cityCode);
+
+                    // 写入SharedPreferences中
+                    SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("main_city_code", cityCode);
+                    editor.putString("main_city_name", cityName);
+                    editor.commit();
+                }
+
             }
 
             Log.i("BaiduLocationApiDem", bdLocation.getCity() + "");
@@ -175,6 +184,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
         initView();
         updatePostWeatherView(null);
         initLocation();
+
+        String cityCode = sharedPreferences.getString("main_city_code", "101010100");
+        if (cityCode != null && !cityCode.equals(""))
+            queryWeatherCode(cityCode);
     }
 
     @Override
@@ -210,8 +223,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         currentTempTv.setText("N/A");
         weatherImg.setImageResource(R.drawable.biz_plugin_weather_qing);
         pmImg.setImageResource(R.drawable.biz_plugin_weather_0_50);
-
-
     }
 
     void updatePostWeatherView(List<PostWeather> postWeathers) {
