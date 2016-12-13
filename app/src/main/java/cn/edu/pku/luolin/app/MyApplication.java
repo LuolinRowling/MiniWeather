@@ -18,7 +18,7 @@ import cn.edu.pku.luolin.db.CityDB;
  * Created by luolin on 2016/10/18.
  */
 public class MyApplication extends Application {
-    private static final String TAG = "miniWeather";
+    private static final String TAG = "miniWeather_City";
 
     private static MyApplication mApplication;
     private CityDB mCityDB;
@@ -73,7 +73,7 @@ public class MyApplication extends Application {
                 + File.separator
                 + CityDB.CITY_DB_NAME;
         File db = new File(path);
-        Log.d(TAG, path);
+        Log.d(TAG,path);
         if (!db.exists()) {
 
             String pathfolder = "/data"
@@ -82,11 +82,11 @@ public class MyApplication extends Application {
                     + File.separator + "databases1"
                     + File.separator;
             File dirFirstFolder = new File(pathfolder);
-            if (!dirFirstFolder.exists()) {
+            if(!dirFirstFolder.exists()){
                 dirFirstFolder.mkdirs();
-                Log.i("miniWeather", "mkdirs");
+                Log.i(TAG, "mkdirs");
             }
-            Log.i("miniWeather", "db is not exists");
+            Log.i(TAG, "db is not exists");
             try {
                 InputStream is = getAssets().open("city.db");
                 FileOutputStream fos = new FileOutputStream(db);

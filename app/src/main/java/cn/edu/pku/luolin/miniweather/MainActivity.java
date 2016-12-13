@@ -18,21 +18,16 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.edu.pku.luolin.app.MyApplication;
+import cn.edu.pku.luolin.bean.City;
 import cn.edu.pku.luolin.bean.PostWeather;
 import cn.edu.pku.luolin.bean.TodayWeather;
 import cn.edu.pku.luolin.service.MyIntentService;
@@ -40,6 +35,10 @@ import cn.edu.pku.luolin.util.NetUtil;
 import cn.edu.pku.luolin.util.ImageUtil;
 import cn.edu.pku.luolin.util.XmlUtil;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 /**
  * Created by luolin on 2016/9/20.
  */
@@ -51,13 +50,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private ImageView mCitySelect;
 
+    private ImageView mLocationBtn;
+
     private TextView cityTv, timeTv, humidityTv, weekTv, pmDataTv, pmQualityTv,
             temperatureTv, climateTv, windTv, city_name_Tv, currentTempTv;
     private ImageView weatherImg, pmImg;
 
     private ProgressBar mUpdateProgress;
 
-    //private LinearLayout mPostWeatherContainer;
+    private MyApplication myApplication;
 
     private LayoutInflater inflater;
 
@@ -84,6 +85,33 @@ public class MainActivity extends Activity implements View.OnClickListener {
     };
 
     IntentFilter intentFilter;
+
+    public LocationClient mLocationClient = null;
+    public BDLocationListener mLocationListener = new BDLocationListener() {
+
+        @Override
+        public void onReceiveLocation(BDLocation bdLocation) {
+            String cityName = bdLocation.getCity().substring(0, 2);
+
+            if (cityName != null && !cityName.equals("")) {
+                String cityCode = "";
+                myApplication = MyApplication.getInstance();
+                List<City> mCityList = myApplication.getCityList();
+
+                for (City city : mCityList) {
+                    if (city.getCity().equals(cityName)) {
+                        cityCode = city.getNumber();
+                        break;
+                    }
+                }
+
+                if (!cityCode.equals(""))
+                    queryWeatherCode(cityCode);
+            }
+
+            Log.i("BaiduLocationApiDem", bdLocation.getCity() + "");
+        }
+    };
 
     @Override
     public void onResume() {
@@ -125,6 +153,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mUpdateBtn = (ImageView) findViewById(R.id.title_update_btn);
         mUpdateBtn.setOnClickListener(this);
 
+        mLocationBtn = (ImageView) findViewById(R.id.title_location);
+        mLocationBtn.setOnClickListener(this);
+
         if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
             Log.d("miniWeather", "网络OK");
             Toast.makeText(MainActivity.this, "网络OK", Toast.LENGTH_LONG).show();
@@ -138,8 +169,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         mUpdateProgress = (ProgressBar) findViewById(R.id.title_update_progress);
 
+        mLocationClient = new LocationClient(getApplicationContext());
+        mLocationClient.registerLocationListener(mLocationListener);
+
         initView();
         updatePostWeatherView(null);
+        initLocation();
     }
 
     @Override
@@ -358,11 +393,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 Log.d("miniWeather", "网络挂了");
             }
         }
+        if (view.getId() == R.id.title_location) {
+            mLocationClient.start();
+        }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            String newCityCode = data.getStringExtra("cityCode");
+            SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+            String newCityCode = sharedPreferences.getString("main_city_code", "101010100");
 
             Log.d("miniWeather", "选择的城市代码为" + newCityCode);
 
@@ -390,5 +429,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     };
 
-
+    private void initLocation() {
+        LocationClientOption option = new LocationClientOption();
+        option.setOpenGps(true);//使用GPS
+        option.setIsNeedAddress(true);
+        option.setIgnoreKillProcess(true);
+        mLocationClient.setLocOption(option);
+    }
 }

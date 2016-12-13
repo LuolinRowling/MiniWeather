@@ -3,7 +3,6 @@ package cn.edu.pku.luolin.db;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,6 @@ import cn.edu.pku.luolin.bean.City;
  * Created by luolin on 2016/10/18.
  */
 public class CityDB {
-
     public static final String CITY_DB_NAME = "city.db";
     private static final String CITY_TABLE_NAME = "city";
     private SQLiteDatabase db;
@@ -30,7 +28,7 @@ public class CityDB {
             String province = c.getString(c.getColumnIndex("province"));
             String city = c.getString(c.getColumnIndex("city"));
             String number = c.getString(c.getColumnIndex("number"));
-            String allPY = c.getColumnName(c.getColumnIndex("allpy"));
+            String allPY = c.getString(c.getColumnIndex("allpy"));
             String allFirstPY = c.getString(c.getColumnIndex("allfirstpy"));
             String firstPY = c.getString(c.getColumnIndex("firstpy"));
             City item = new City(province, city, number, firstPY, allPY,allFirstPY);
@@ -38,5 +36,4 @@ public class CityDB {
         }
         return list;
     }
-
 }
