@@ -8,7 +8,7 @@ import java.util.TimerTask;
 
 public class MyIntentService extends IntentService {
     private Timer timer = new Timer();
-    static final int UPDATE_INTERVAL = 20000;
+    static final int UPDATE_INTERVAL = 1000 * 60;
 
     public MyIntentService() {
         super("MyIntentService");

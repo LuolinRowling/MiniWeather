@@ -44,7 +44,8 @@ import com.baidu.location.LocationClientOption;
  */
 public class MainActivity extends Activity implements View.OnClickListener {
 
-    private static final int UPDATE_TODAY_WEATHER = 1;
+    private static final int UPDATE_TODAY_WEATHER = 10001;
+    private static final int NO_TODAY_WEATHER = 10002;
 
     private ImageView mUpdateBtn;
 
@@ -78,6 +79,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 case UPDATE_TODAY_WEATHER:
                     updateTodayWeather((TodayWeather) msg.obj);
                     break;
+                case NO_TODAY_WEATHER:
+                    Toast.makeText(getBaseContext(), "查无该城市或地区天气信息", Toast.LENGTH_SHORT).show();
                 default:
                     break;
             }
@@ -91,7 +94,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
-            String cityName = bdLocation.getCity().substring(0, 2);
+//            Toast.makeText(getBaseContext(), bdLocation.getDistrict(), Toast.LENGTH_SHORT).show();
+            String cityName = bdLocation.getDistrict();
 
             if (cityName != null && !cityName.equals("")) {
                 String cityCode = "";
@@ -99,7 +103,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 List<City> mCityList = myApplication.getCityList();
 
                 for (City city : mCityList) {
-                    if (city.getCity().equals(cityName)) {
+                    if (cityName.contains(city.getCity())) {
                         cityCode = city.getNumber();
                         break;
                     }
@@ -117,8 +121,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
 
             }
-
-            Log.i("BaiduLocationApiDem", bdLocation.getCity() + "");
+            mLocationClient.stop();
+            Log.i("BaiduLocationApiDem", bdLocation.getCity() + " " + bdLocation.getLocType());
         }
     };
 
@@ -167,10 +171,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
             Log.d("miniWeather", "网络OK");
-            Toast.makeText(MainActivity.this, "网络OK", Toast.LENGTH_LONG).show();
+//            Toast.makeText(MainActivity.this, "网络OK", Toast.LENGTH_LONG).show();
         } else {
             Log.d("miniWeather", "网络挂了");
-            Toast.makeText(MainActivity.this, "网络挂了", Toast.LENGTH_LONG).show();
+//            Toast.makeText(MainActivity.this, "网络挂了", Toast.LENGTH_LONG).show();
         }
 
         mCitySelect = (ImageView) findViewById(R.id.title_city_manager);
@@ -368,13 +372,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 HttpURLConnection conn = null;
                 TodayWeather todayWeather = queryTodayWeather(cityCode, conn);
                 TodayWeather urbanTodayWeather = queryTodayWeather(cityCode.substring(0, 5) + "0100", conn);
-                if (todayWeather != null && urbanTodayWeather != null) {
+                if (todayWeather.getCity() != null) {
+
+                    // 更新所选城市编号存入sharedPreferences中
+                    SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("main_city_code", cityCode);
+                    editor.putString("main_city_name", todayWeather.getCity());
+                    editor.commit();
+
                     Log.d("miniWeather", todayWeather.toString());
                     todayWeather.setPm25(urbanTodayWeather.getPm25());
                     todayWeather.setQuality(urbanTodayWeather.getQuality());
                     Message msg = new Message();
                     msg.what = UPDATE_TODAY_WEATHER;
                     msg.obj = todayWeather;
+                    mHandler.sendMessage(msg);
+                } else {
+                    Message msg = new Message();
+                    msg.what = NO_TODAY_WEATHER;
+                    msg.obj = null;
                     mHandler.sendMessage(msg);
                 }
             }
@@ -405,37 +422,55 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         }
         if (view.getId() == R.id.title_location) {
+            Log.i("Baidu", mLocationClient.toString());
             mLocationClient.start();
+//            mLocationClient.requestLocation();
+
         }
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
-            String newCityCode = sharedPreferences.getString("main_city_code", "101010100");
+            String from = intent.getStringExtra("FROM");
+            switch (from) {
+                case "SELECT_CITY_ITEM": {
+                    String newCityCode = intent.getStringExtra("cityCode");
+                    Log.i("MiniWeather", "newCityCode: " + newCityCode);
+                    if (newCityCode != null && !newCityCode.equals("")) {
+                        Log.d("miniWeather", "选择的城市代码为" + newCityCode);
 
-            Log.d("miniWeather", "选择的城市代码为" + newCityCode);
+                        if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
+                            Log.d("miniWeather", "网络OK");
+                            queryWeatherCode(newCityCode);
+                        } else {
+                            Log.d("miniWeather", "网络挂了");
+                        }
+                    }
 
-            if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
-                Log.d("miniWeather", "网络OK");
-                queryWeatherCode(newCityCode);
-            } else {
-                Log.d("miniWeather", "网络挂了");
+                    break;
+                }
+                case "SELECT_CITY_BACK": {
+                    break;
+                }
+                default: break;
             }
+
         }
     }
 
     private BroadcastReceiver intentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
-            String cityCode = sharedPreferences.getString("main_city_code", "101010100");
+            if (intent.getAction().equals("CURRENT_WEATHER_UPDATE_ACTION")) {
+                SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+                String cityCode = sharedPreferences.getString("main_city_code", "101010100");
 
-            if (NetUtil.getNetworkState(context) != NetUtil.NETWORK_NONE) {
-                Log.d("miniWeather", "网络OK");
-                queryWeatherCode(cityCode);
-            } else {
-                Log.d("miniWeather", "网络挂了");
+                if (NetUtil.getNetworkState(context) != NetUtil.NETWORK_NONE) {
+                    Log.d("miniWeather", "网络OK");
+                    queryWeatherCode(cityCode);
+                } else {
+                    Log.d("miniWeather", "网络挂了");
+                }
             }
         }
     };
@@ -443,8 +478,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private void initLocation() {
         LocationClientOption option = new LocationClientOption();
         option.setOpenGps(true);//使用GPS
+        option.setScanSpan(1000);
         option.setIsNeedAddress(true);
-        option.setIgnoreKillProcess(true);
+        option.setIgnoreKillProcess(false);
         mLocationClient.setLocOption(option);
     }
 }

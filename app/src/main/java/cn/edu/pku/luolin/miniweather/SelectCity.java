@@ -108,15 +108,9 @@ public class SelectCity extends Activity implements View.OnClickListener{
     private AdapterView.OnItemClickListener mCityClickedHandler = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            //将选择的城市编号存入sharedPreferences中
-            SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("main_city_code", mCurrentCityList.get(i).getNumber());
-            editor.putString("main_city_name", mCurrentCityList.get(i).getCity());
-            editor.commit();
-
             Intent intent = new Intent();
-            //intent.putExtra("cityCode", mCurrentCityList.get(i).getNumber());
+            intent.putExtra("FROM", "SELECT_CITY_ITEM");
+            intent.putExtra("cityCode", mCurrentCityList.get(i).getNumber());
             setResult(RESULT_OK, intent);
             finish();
 
@@ -129,6 +123,7 @@ public class SelectCity extends Activity implements View.OnClickListener{
             case R.id.title_back:
                 Intent i = new Intent();
 //                i.putExtra("cityCode", "101160101");
+                i.putExtra("FROM", "SELECT_CITY_BACK");
                 setResult(RESULT_OK, i);
                 finish();
                 break;
