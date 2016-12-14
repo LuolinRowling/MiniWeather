@@ -23,7 +23,7 @@ public class MyIntentService extends IntentService {
                 broadcastIntent.setAction("CURRENT_WEATHER_UPDATE_ACTION");
                 getBaseContext().sendBroadcast(broadcastIntent);
             }
-        }, 0, UPDATE_INTERVAL);
+        }, UPDATE_INTERVAL, UPDATE_INTERVAL);
 
         return START_STICKY;
     }

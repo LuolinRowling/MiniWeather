@@ -137,8 +137,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         //将其注册到intent接收器上
         registerReceiver(intentReceiver, intentFilter);
 
-        startService(new Intent(getBaseContext(), MyIntentService.class));
-
     }
 
     @Override
@@ -192,6 +190,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         String cityCode = sharedPreferences.getString("main_city_code", "101010100");
         if (cityCode != null && !cityCode.equals(""))
             queryWeatherCode(cityCode);
+
+        startService(new Intent(getBaseContext(), MyIntentService.class));
     }
 
     @Override
@@ -422,10 +422,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         }
         if (view.getId() == R.id.title_location) {
-            Log.i("Baidu", mLocationClient.toString());
             mLocationClient.start();
-//            mLocationClient.requestLocation();
-
         }
     }
 

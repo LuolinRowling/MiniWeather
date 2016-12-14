@@ -4,10 +4,9 @@
     android:layout_height="match_parent">
 
     <android.support.v4.view.ViewPager
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/viewpager"
-        android:background="#ff0000">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/viewpager">
     </android.support.v4.view.ViewPager>
 
     <LinearLayout
@@ -17,7 +16,7 @@
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:gravity="center_horizontal"
-        android:background="#ff000000">
+        android:background="#ffffff">
         <ImageView
             android:id="@+id/iv1"
             android:layout_width="wrap_content"
