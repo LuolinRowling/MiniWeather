@@ -313,12 +313,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
             if (imageResource != -1)
                 pmImg.setImageResource(imageResource);
+
+        } else {
+            pmDataTv.setText("N/A");
+            pmQualityTv.setText("N/A");
+            pmImg.setImageResource(R.drawable.biz_plugin_weather_0_50);
         }
 
         int imageResource = ImageUtil.GetImageByType(todayWeather.getType());
 
         if (imageResource != -1)
             weatherImg.setImageResource(imageResource);
+
 
         mUpdateBtn.setVisibility(View.VISIBLE);
         mUpdateProgress.setVisibility(View.INVISIBLE);
